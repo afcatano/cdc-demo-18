@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-topics-ui
+  labels:
+    name: kafka-topics-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: kafka-topics-ui
+  template:
+    metadata:
+      labels:
+        service: kafka-topics-ui
+    spec:
+      containers:
+      - name: kafka-topics-ui
+        image: landoop/kafka-topics-ui:0.9.4
+      #  volumeMounts:
+      #  - name: kafka-topics-ui-volume-mount
+      #    mountPath: /var/lib/kafka-topics-uiql/data
+      #    subPath: kafka-topics-ui
+        env:
+        - name: KAFKA_REST_PROXY_URL
+          value: 'http://kafka-rest-proxy:8082/'
+        - name: PROXY
+          value: 'true'
+        ports:
+        - containerPort: 8000
+        resources:
+         limits:
+            cpu: 500m
+            memory: 500Mi
+      restartPolicy: Always
+    #  volumes:
+    #  - name: kafka-topics-ui-volume-mount
+    #    persistentVolumeClaim:
+    #      claimName: kafka-topics-ui-pvc

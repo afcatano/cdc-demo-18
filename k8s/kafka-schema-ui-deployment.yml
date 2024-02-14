@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-schema-registry-ui
+  labels:
+    name: kafka-schema-registry-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: kafka-schema-registry-ui
+  template:
+    metadata:
+      labels:
+        service: kafka-schema-registry-ui
+    spec:
+      containers:
+      - name: kafka-schema-registry-ui
+        image: landoop/schema-registry-ui:0.9.5
+      #  volumeMounts:
+      #  - name: kafka-schema-registry-volume-mount
+      #    mountPath: /var/lib/kafka-schema-registryql/data
+      #    subPath: kafka-schema-registry
+        env:
+        - name: SCHEMAREGISTRY_URL
+          value: 'http://kafka-schema-registry:8081/'
+        - name: PROXY
+          value: 'true'
+        ports:
+        - containerPort: 8000
+        resources:
+         limits:
+            cpu: 500m
+            memory: 500Mi
+      restartPolicy: Always
+    #  volumes:
+    #  - name: kafka-schema-registry-volume-mount
+    #    persistentVolumeClaim:
+    #      claimName: kafka-schema-registry-pvc

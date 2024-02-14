@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ksqldb-server
+  labels:
+    name: ksqldb-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: ksqldb-server
+  template:
+    metadata:
+      labels:
+        service: ksqldb-server
+    spec:
+      containers:
+      - name: ksqldb-server
+        image: confluentinc/cp-ksqldb-server:6.1.1
+      #  volumeMounts:
+      #  - name: ksqldb-server-volume-mount
+      #    mountPath: /var/lib/ksqldb-serverql/data
+      #    subPath: ksqldb-server
+        env:
+        - name: KSQL_BOOTSTRAP_SERVERS
+          value: 'PLAINTEXT://kafka:19092'
+        - name: KSQL_LISTENERS
+          value: 'http://0.0.0.0:8088/'
+        - name: KSQL_KSQL_SERVICE_ID
+          value: 'ksqldb-server_'
+        ports:
+        - containerPort: 8088
+        resources:
+         limits:
+            cpu: 500m
+            memory: 500Mi
+      restartPolicy: Always
+    #  volumes:
+    #  - name: ksqldb-server-volume-mount
+    #    persistentVolumeClaim:
+    #      claimName: ksqldb-server-pvc

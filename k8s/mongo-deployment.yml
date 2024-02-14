@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  labels:
+    name: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: mongo
+  template:
+    metadata:
+      labels:
+        service: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo
+        env:
+        - name: MONGO_INITDB_DATABASE
+          value: "db"
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-credentials
+              key: user
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-credentials
+              key: password
+        ports:
+        - containerPort: 28081
+        resources:
+         limits:
+            cpu: 500m
+            memory: 500Mi
+      restartPolicy: Always

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zoonavigator
+  labels:
+    name: zoonavigator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: zoonavigator
+  template:
+    metadata:
+      labels:
+        service: zoonavigator
+    spec:
+      containers:
+      - name: zoonavigator
+        image: elkozmon/zoonavigator:0.8.0
+      #  volumeMounts:
+      #  - name: zoonavigator-volume-mount
+      #    mountPath: /var/lib/zoonavigatorql/data
+      #    subPath: zoonavigator
+        env:
+        - name: HTTP_PORT
+          value: '8000'
+        - name: AUTO_CONNECT_CONNECTION_STRING
+          value: 'zoo:2181'
+        ports:
+        - containerPort: 8000
+        resources:
+         limits:
+            cpu: 500m
+            memory: 500Mi
+      restartPolicy: Always
+    #  volumes:
+    #  - name: zoonavigator-volume-mount
+    #    persistentVolumeClaim:
+    #      claimName: zoonavigator-pvc

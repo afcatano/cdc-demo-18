@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: zoonavigator
+  labels:
+    service: zoonavigator
+spec:
+  selector:
+    service: zoonavigator
+  type: ClusterIP
+  ports:
+  - name: tcp-8000
+    protocol: TCP
+    port: 8000
+    targetPort: 8000

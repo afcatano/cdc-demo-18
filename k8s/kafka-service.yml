@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  labels:
+    service: kafka
+spec:
+  selector:
+    service: kafka
+  type: ClusterIP
+  ports:
+  - name: tcp-9092
+    protocol: TCP
+    port: 9092
+    targetPort: 9092
+  - name: tcp-9999
+    protocol: TCP
+    port: 9999
+    targetPort: 9999
+  - name: tcp-19092
+    protocol: TCP
+    port: 19092
+    targetPort: 19092
+  

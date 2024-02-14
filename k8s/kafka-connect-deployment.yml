@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-connect
+  labels:
+    name: kafka-connect
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: kafka-connect
+  template:
+    metadata:
+      labels:
+        service: kafka-connect
+    spec:
+      enableServiceLinks: false
+      containers:
+      - name: kafka-connect
+        command:
+        - bash
+        - -c
+        - |
+            confluent-hub install --no-prompt debezium/debezium-connector-mysql:latest
+            confluent-hub install --no-prompt debezium/debezium-connector-postgresql:latest
+            confluent-hub install --no-prompt confluentinc/kafka-connect-datagen:0.4.0
+            /etc/confluent/docker/run
+        image: confluentinc/cp-kafka-connect:5.5.1
+      #  volumeMounts:
+      #  - name: kafka-connect-volume-mount
+      #    mountPath: /var/lib/kafka-connectql/data
+      #    subPath: kafka-connect
+        env:
+        - name: CONNECT_BOOTSTRAP_SERVERS
+          value: "kafka:19092"
+        - name: CONNECT_REST_PORT
+          value: '8083'
+        - name: CONNECT_GROUP_ID
+          value: 'compose-connect-group'
+        - name: CONNECT_CONFIG_STORAGE_TOPIC
+          value: 'docker-connect-configs'
+        - name: CONNECT_OFFSET_STORAGE_TOPIC
+          value: 'docker-connect-offsets'
+        - name: CONNECT_STATUS_STORAGE_TOPIC
+          value: 'docker-connect-status'
+        - name: CONNECT_KEY_CONVERTER
+          value: 'io.confluent.connect.avro.AvroConverter'
+        - name: CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL
+          value: 'http://kafka-schema-registry:8081'
+        - name: CONNECT_VALUE_CONVERTER
+          value: 'io.confluent.connect.avro.AvroConverter'
+        - name: CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL
+          value: 'http://kafka-schema-registry:8081'
+        - name: CONNECT_INTERNAL_KEY_CONVERTER
+          value: "org.apache.kafka.connect.json.JsonConverter"
+        - name: CONNECT_INTERNAL_VALUE_CONVERTER
+          value: "org.apache.kafka.connect.json.JsonConverter"
+        - name: CONNECT_REST_ADVERTISED_HOST_NAME
+          value: "kafka-connect"
+        - name: CONNECT_LOG4J_ROOT_LOGLEVEL
+          value: "INFO"
+
+        - name: CONNECT_LOG4J_LOGGERS
+          value: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR"
+        - name: CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR
+          value: "1"
+        - name: CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR
+          value: "1"
+        - name: CONNECT_STATUS_STORAGE_REPLICATION_FACTOR
+          value: "1"
+        - name: CONNECT_PLUGIN_PATH
+          value: '/usr/share/java,/etc/kafka-connect/jars,/usr/share/confluent-hub-components'
+        ports:
+        - containerPort: 8083
+        resources:
+         limits:
+            cpu: 2
+            memory: 2500Mi
+      restartPolicy: Always
+    #  volumes:
+    #  - name: kafka-connect-volume-mount
+    #    persistentVolumeClaim:
+    #      claimName: kafka-connect-pvc

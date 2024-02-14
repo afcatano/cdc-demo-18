@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zoo
+  labels:
+    name: zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: zoo
+  template:
+    metadata:
+      labels:
+        service: zoo
+    spec:
+      containers:
+      - name: zoo
+        image: zookeeper:3.4.9
+      #  volumeMounts:
+      #  - name: zoo-volume-mount
+      #    mountPath: /var/lib/zooql/data
+      #    subPath: zoo
+        env:
+        - name: ZOO_MY_ID
+          value: '1'
+        - name: ZOO_PORT
+          value: '2181'
+        - name: ZOO_SERVERS
+          value: "server.1=zoo:2888:3888"
+        ports:
+        - containerPort: 2181
+        resources:
+         limits:
+            cpu: 500m
+            memory: 500Mi
+      restartPolicy: Always
+    #  volumes:
+    #  - name: zoo-volume-mount
+    #    persistentVolumeClaim:
+    #      claimName: zoo-pvc

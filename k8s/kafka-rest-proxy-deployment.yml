@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-rest-proxy
+  labels:
+    name: kafka-rest-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: kafka-rest-proxy
+  template:
+    metadata:
+      labels:
+        service: kafka-rest-proxy
+    spec:
+      containers:
+      - name: kafka-rest-proxy
+        image: confluentinc/cp-kafka-rest:5.5.1
+      #  volumeMounts:
+      #  - name: kafka-rest-proxy-volume-mount
+      #    mountPath: /var/lib/kafka-rest-proxyql/data
+      #    subPath: kafka-rest-proxy
+        env:
+        - name: KAFKA_REST_LISTENERS
+          value: 'http://0.0.0.0:8082/'
+        - name: KAFKA_REST_SCHEMA_REGISTRY_URL
+          value: 'http://kafka-schema-registry:8081/'
+        - name: KAFKA_REST_HOST_NAME
+          value: "kafka-rest-proxy"        
+        - name: KAFKA_REST_BOOTSTRAP_SERVERS
+          value: "PLAINTEXT://kafka:19092"
+        ports:
+        - containerPort: 8082
+        resources:
+         limits:
+            cpu: 500m
+            memory: 500Mi
+      restartPolicy: Always
+    #  volumes:
+    #  - name: kafka-rest-proxy-volume-mount
+    #    persistentVolumeClaim:
+    #      claimName: kafka-rest-proxy-pvc

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-express
+  labels:
+    name: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: mongo-express
+  template:
+    metadata:
+      labels:
+        service: mongo-express
+    spec:
+      containers:
+      - name: mongo-express
+        image: mongo-express
+        env:
+        - name: ME_CONFIG_MONGODB_URL
+          value: "mongodb://microbank:microbank@mongo:27017?authSource=admin"
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongo-credentials
+              key: user
+        - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongo-credentials
+              key: password
+        ports:
+        - containerPort: 28081
+        resources:
+         limits:
+            cpu: 500m
+            memory: 500Mi
+      restartPolicy: Always

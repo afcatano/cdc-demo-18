@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-connect-ui
+  labels:
+    name: kafka-connect-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: kafka-connect-ui
+  template:
+    metadata:
+      labels:
+        service: kafka-connect-ui
+    spec:
+      containers:
+      - name: kafka-connect-ui
+        image: landoop/kafka-connect-ui:0.9.7
+      #  volumeMounts:
+      #  - name: kafka-connect-ui-volume-mount
+      #    mountPath: /var/lib/kafka-connect-uiql/data
+      #    subPath: kafka-connect-ui
+        env:
+        - name: CONNECT_URL
+          value: "http://kafka-connect:8083/"
+        - name: PROXY
+          value: 'true'
+        ports:
+        - containerPort: 8000
+        resources:
+         limits:
+            cpu: 500m
+            memory: 500Mi
+      restartPolicy: Always
+    #  volumes:
+    #  - name: kafka-connect-ui-volume-mount
+    #    persistentVolumeClaim:
+    #      claimName: kafka-connect-ui-pvc

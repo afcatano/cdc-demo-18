@@ -1,0 +1,117 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: microbank
+  description: PoC que muestra el matron CDC con Kafka - Postgres - mongoDB
+  links:
+    - url: http://microbank.184c032a98194e6da115.francecentral.aksapp.io/
+      title: UI microbank
+      icon: dashboard
+      type: app
+spec:
+  owner: guests
+  parentOf: [microbank-core,microbank-client,postgres-microbank,mongodb-microbank,kafka-microbank,microbank-client]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: microbank-core
+  description: Aplicación core de microbank
+  annotations:
+    backstage.io/techdocs-ref: value
+  tags:
+    - java
+  links:
+    - url: http://microbank.184c032a98194e6da115.francecentral.aksapp.io/
+      title: UI microbank
+      icon: dashboard
+      type: app
+spec:
+  type: website
+  owner: user:guest
+  lifecycle: experimental
+  system: microbank
+  dependsOn:
+    - resource:postgres-microbank
+  dependencyOf:
+    - resource:kafka-microbank
+  
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: mongodb-microbank
+  description: Base de datos para clientes soportada en mongodb
+  tags:
+    - mongodb
+spec:
+  type: database
+  lifecycle: experimental
+  owner: guests
+  system: microbank
+---
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: microbank-client
+  description: Visualizador de reportes
+  labels:
+    example.com/custom: custom_label_value
+  annotations:
+    example.com/service-discovery: artistweb
+    circleci.com/project-slug: github/example-org/artist-website
+  tags:
+    - java
+spec:
+  type: website
+  lifecycle: experimental
+  owner: guests
+  system: microbank
+  #dependsOn: [mongodb-microbank]
+  dependsOn:
+    - resource:mongodb-microbank
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: postgres-microbank
+  description: Base de datos postgres del core de microbank
+  tags:
+    - postgres
+spec:
+  type: database
+  lifecycle: experimental
+  owner: guests
+  system: microbank
+  memberOf: [microbank-core]
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: kafka-microbank
+  description: Sistema de mensajeria basada en kafka
+  tags:
+    - kafka
+  links:
+    - url: http://cdc-poc-connect-ui.184c032a98194e6da115.francecentral.aksapp.io
+      title: UI Kafka connect
+      icon: dashboard
+      type: dashboard
+    - url: http://cdc-poc-topic-ui.184c032a98194e6da115.francecentral.aksapp.io
+      title: UI Kafka Topic
+      icon: dashboard
+      type: dashboard
+    - url: http://cdc-poc-registry-ui.184c032a98194e6da115.francecentral.aksapp.io/
+      title: UI Registry
+      icon: dashboard
+      type: dashboard
+spec:
+  type: messaging
+  lifecycle: experimental
+  owner: guests
+  system: microbank
+  memberOf: [microbank-core,microbank-client,postgres-microbank,kafka-microbank,microbank-client]

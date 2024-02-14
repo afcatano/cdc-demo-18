@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-schema-registry
+  labels:
+    name: kafka-schema-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: kafka-schema-registry
+  template:
+    metadata:
+      labels:
+        service: kafka-schema-registry
+    spec:
+      containers:
+      - name: kafka-schema-registry
+        image: confluentinc/cp-schema-registry:5.5.1
+      #  volumeMounts:
+      #  - name: kafka-schema-registry-volume-mount
+      #    mountPath: /var/lib/kafka-schema-registryql/data
+      #    subPath: kafka-schema-registry
+        env:
+        - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
+          value: 'PLAINTEXT://kafka:19092'
+        - name: SCHEMA_REGISTRY_HOST_NAME
+          value: 'kafka-schema-registry'
+        - name: SCHEMA_REGISTRY_LISTENERS
+          value: "http://0.0.0.0:8081"
+        ports:
+        - containerPort: 8081
+        resources:
+         limits:
+            cpu: 500m
+            memory: 500Mi
+      restartPolicy: Always
+    #  volumes:
+    #  - name: kafka-schema-registry-volume-mount
+    #    persistentVolumeClaim:
+    #      claimName: kafka-schema-registry-pvc
